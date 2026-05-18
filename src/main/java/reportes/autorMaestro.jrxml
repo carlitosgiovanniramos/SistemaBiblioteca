@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="fd0177e4-1d7a-4d78-8bad-00c901de063a">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="cedula" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["C:\\Users\\Lenovo LOQ\\Documents\\NetBeansProjects\\ComputacionVisualRepeticionU3\\src\\Reportes\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT autCedula, autNombre, autApellido, autTelefono
+FROM autor
+WHERE autCedula = $P{cedula}]]>
+	</queryString>
+	<field name="autCedula" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="autNombre" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="autApellido" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="autTelefono" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="22" splitType="Stretch">
+			<staticText>
+				<reportElement x="40" y="2" width="100" height="20" uuid="4e1388f9-3963-471b-b1be-460416fb7ff9"/>
+				<text><![CDATA[CEDULA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="172" y="2" width="100" height="20" uuid="4d23e8a4-3985-43fb-8510-8e1e7fd31de0"/>
+				<text><![CDATA[NOMBRE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="314" y="2" width="100" height="20" uuid="423c54ca-aed9-4796-bc5b-2ae4ad0af2a4"/>
+				<text><![CDATA[APELLIDO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="436" y="2" width="100" height="20" uuid="11c1af96-f74d-448a-be79-73270b7838ae"/>
+				<text><![CDATA[TELEFONO]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="36" splitType="Stretch">
+			<textField>
+				<reportElement x="40" y="16" width="100" height="20" uuid="540821ff-13ed-43b0-859c-2f42fc02b136"/>
+				<textFieldExpression><![CDATA[$F{autCedula}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="172" y="16" width="100" height="20" uuid="9b6aa8cc-730c-43d7-b497-397bd67c8dcc"/>
+				<textFieldExpression><![CDATA[$F{autNombre}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="314" y="16" width="100" height="20" uuid="10903bf7-a7a0-41e7-9c13-f22076c6f847"/>
+				<textFieldExpression><![CDATA[$F{autApellido}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="436" y="16" width="100" height="20" uuid="5e6742ea-0d07-4993-86b1-c1c122face21"/>
+				<textFieldExpression><![CDATA[$F{autTelefono}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="65" splitType="Stretch">
+			<subreport>
+				<reportElement x="0" y="0" width="555" height="65" uuid="05a9f89c-60c1-425c-a12a-e20d6be150af"/>
+				<subreportParameter name="cedulaAutor">
+					<subreportParameterExpression><![CDATA[$F{autCedula}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "libroDetalle.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</summary>
+</jasperReport>

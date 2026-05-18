@@ -1,0 +1,42 @@
+INSERT INTO `autor`
+(`autCedula`, `autNombre`, `autApellido`, `autNacionalidad`, `autTelefono`)
+VALUES
+('1850596303','Carlos','Ramos','Ecuatoriano','0967977374'),
+('1723456789','María','López','Colombiana','0987654321'),
+('0912345678','Juan','Pérez','Peruano','0991122334');
+
+INSERT INTO libro
+(codLibro, titLibro, cedAutLibro)
+VALUES
+('L001', 'Cien Años de Soledad', '1850596303'),
+('L002', 'Don Quijote', '1723456789'),
+('L003', 'La Ciudad y los Perros', '0912345678');
+
+Reporte
+SELECT libro.codLibro, libro.titLibro
+FROM libro, autor
+WHERE autor.autCedula = libro.cedAutLibro
+
+PARA CREAR EL REPORTE sin esto
+AND autor.autCedula = $P{cedula}
+
+    <dependencies>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>9.3.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports</artifactId>
+            <version>6.21.0</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>3.0.21</version>
+            <type>pom</type>
+        </dependency>
+    </dependencies>
