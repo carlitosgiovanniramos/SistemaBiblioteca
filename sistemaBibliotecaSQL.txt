@@ -12,12 +12,17 @@ VALUES
 ('L002', 'Don Quijote', '1723456789'),
 ('L003', 'La Ciudad y los Perros', '0912345678');
 
-Reporte
+Autor
+SELECT autCedula, autNombre, autApellido, autTelefono
+FROM autor
+
+WHERE autCedula = $P{cedula}
+
+Libro
 SELECT libro.codLibro, libro.titLibro
 FROM libro, autor
 WHERE autor.autCedula = libro.cedAutLibro
 
-PARA CREAR EL REPORTE sin esto
 AND autor.autCedula = $P{cedula}
 
     <dependencies>
