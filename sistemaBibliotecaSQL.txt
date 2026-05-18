@@ -25,6 +25,11 @@ WHERE autor.autCedula = libro.cedAutLibro
 
 AND autor.autCedula = $P{cedula}
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+DEPENDENCIAS
+
     <dependencies>
         <dependency>
             <groupId>com.mysql</groupId>
@@ -46,6 +51,8 @@ AND autor.autCedula = $P{cedula}
         </dependency>
     </dependencies>
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Adaptador en Run
 
@@ -53,6 +60,8 @@ Adaptador en Run
 --add-opens java.base/java.util=ALL-UNNAMED
 --add-opens java.desktop/java.awt=ALL-UNNAMED
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Conexión 
     public static Connection conectar() {
@@ -66,3 +75,699 @@ Conexión
         }
         return cn;
     }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+DAO AutorDAO
+
+public ArrayList<Autor> listarAutores() {
+        ArrayList<Autor> lista = new ArrayList<>();
+        String sql = "SELECT * FROM autor";
+
+        try {
+            Connection cc = Conexion.conectar();
+            PreparedStatement psd = cc.prepareStatement(sql);
+            ResultSet rs = psd.executeQuery();
+
+            while (rs.next()) {
+                Autor autor = new Autor();
+
+                autor.setCedula(rs.getString("autCedula"));
+                autor.setNombre(rs.getString("autNombre"));
+                autor.setApellido(rs.getString("autApellido"));
+                autor.setNacionalidad(rs.getString("autNacionalidad"));
+                autor.setTelefono(rs.getString("autTelefono"));
+
+                lista.add(autor);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al listar autores: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    public ArrayList<Autor> buscarAutorPorCedula(String cedula) {
+
+        ArrayList<Autor> lista = new ArrayList<>();
+
+        String sql = "SELECT * FROM autor WHERE autCedula = ?";
+
+        try {
+
+            Connection con = Conexion.conectar();
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, cedula);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                Autor autor = new Autor();
+
+                autor.setCedula(rs.getString("autCedula"));
+                autor.setNombre(rs.getString("autNombre"));
+                autor.setApellido(rs.getString("autApellido"));
+                autor.setNacionalidad(rs.getString("autNacionalidad"));
+                autor.setTelefono(rs.getString("autTelefono"));
+
+                lista.add(autor);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al buscar autor: " + e.getMessage());
+        }
+
+        return lista;
+    }
+
+    public boolean guardarAutor(Autor autor) {
+        String sql = "INSERT INTO autor (autCedula, autNombre, autApellido, autNacionalidad, autTelefono) VALUES(?,?,?,?,?)";
+        try {
+            Connection cc = Conexion.conectar();
+            PreparedStatement psd = cc.prepareStatement(sql);
+
+            psd.setString(1, autor.getCedula());
+            psd.setString(2, autor.getNombre());
+            psd.setString(3, autor.getApellido());
+            psd.setString(4, autor.getNacionalidad());
+            psd.setString(5, autor.getTelefono());
+
+            psd.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al guardar autor: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean editarAutor(Autor autor) {
+        String sql = "UPDATE autor SET autNombre=?, autApellido=?, autNacionalidad=?, autTelefono=? WHERE autCedula=?";
+
+        try {
+            Connection cc = Conexion.conectar();
+            PreparedStatement psd = cc.prepareStatement(sql);
+
+            psd.setString(1, autor.getNombre());
+            psd.setString(2, autor.getApellido());
+            psd.setString(3, autor.getNacionalidad());
+            psd.setString(4, autor.getTelefono());
+            psd.setString(5, autor.getCedula());
+
+            psd.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean eliminarAutor(Autor autor) {
+        String sql = "DELETE FROM autor WHERE autCedula=?";
+
+        try {
+            Connection cc = Conexion.conectar();
+            PreparedStatement psd = cc.prepareStatement(sql);
+
+            psd.setString(1, autor.getCedula());
+
+            psd.executeUpdate();
+            return true;
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al eliminar estudiante: " + e.getMessage());
+            return false;
+        }
+    }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+DAO LibroDAO
+
+    public ArrayList<Libro> listarLibrosConAutor() {
+
+        ArrayList<Libro> lista = new ArrayList<>();
+
+        String sql = "SELECT l.codLibro, l.titLibro, a.autNombre "
+                + "FROM libro l "
+                + "INNER JOIN autor a ON l.cedAutLibro = a.autCedula";
+
+        try {
+
+            Connection con = Conexion.conectar();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                Libro libro = new Libro();
+
+                libro.setCodigo(rs.getString("codLibro"));
+                libro.setTitulo(rs.getString("titLibro"));
+                libro.setNombreAutor(rs.getString("autNombre"));
+
+                lista.add(libro);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al listar libros con autor: " + e.getMessage());
+        }
+
+        return lista;
+    }
+
+    public boolean guardarLibro(Libro libro) {
+
+        String sql = "INSERT INTO libro (codLibro, titLibro, cedAutLibro) VALUES (?, ?, ?)";
+
+        try {
+            Connection con = Conexion.conectar();
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, libro.getCodigo());
+            ps.setString(2, libro.getTitulo());
+            ps.setString(3, libro.getCedulaAutor());
+
+            ps.executeUpdate();
+            return true;
+
+        } catch (Exception e) {
+            System.out.println("Error al guardar libro: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean editarLibro(Libro libro) {
+
+        String sql = "UPDATE libro SET titLibro = ?, cedAutLibro = ? WHERE codLibro = ?";
+
+        try {
+            Connection con = Conexion.conectar();
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, libro.getTitulo());
+            ps.setString(2, libro.getCedulaAutor());
+            ps.setString(3, libro.getCodigo());
+
+            ps.executeUpdate();
+            return true;
+
+        } catch (Exception e) {
+            System.out.println("Error al editar libro: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean eliminarLibro(String codigo) {
+
+        String sql = "DELETE FROM libro WHERE codLibro = ?";
+
+        try {
+
+            Connection con = Conexion.conectar();
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, codigo);
+
+            ps.executeUpdate();
+
+            return true;
+
+        } catch (Exception e) {
+            System.out.println("Error al eliminar libro: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public ArrayList<Libro> buscarLibrosPorAutor(String cedulaAutor) {
+
+        ArrayList<Libro> lista = new ArrayList<>();
+
+        String sql = "SELECT l.codLibro, l.titLibro, a.autNombre "
+                + "FROM libro l "
+                + "INNER JOIN autor a ON l.cedAutLibro = a.autCedula "
+                + "WHERE l.cedAutLibro = ?";
+
+        try {
+            Connection con = Conexion.conectar();
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, cedulaAutor);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Libro libro = new Libro();
+
+                libro.setCodigo(rs.getString("codLibro"));
+                libro.setTitulo(rs.getString("titLibro"));
+                libro.setNombreAutor(rs.getString("autNombre"));
+
+                lista.add(libro);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al buscar libros por autor: " + e.getMessage());
+        }
+
+        return lista;
+    }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+MODELO Autor
+
+    private String cedula;
+    private String nombre;
+    private String apellido;
+    private String nacionalidad;
+    private String telefono;
+
+MODELO Libro
+
+    private String codigo;
+    private String titulo;
+    private String cedulaAutor;
+    private String nombreAutor;
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+VISTA AutorCRUD
+
+    /**
+     * Creates new form EstudianteCRUD
+     */
+    DefaultTableModel modeloAutor;
+
+    public AutorCRUD() {
+        initComponents();
+        cargarColumnasTabla();
+        listarAutores();
+        SeleccionarFilaEstudiante();
+    }
+
+    public void cargarColumnasTabla() {
+        String[] columnas = {"Cedula", "Nombre", "Apellido", "Nacionalidad", "Telefono"};
+        modeloAutor = new DefaultTableModel(null, columnas);
+        jtblAutor.setModel(modeloAutor);
+    }
+
+    public void listarAutores() {
+        modeloAutor.setRowCount(0);
+
+        AutorDAO dao = new AutorDAO();
+
+        ArrayList<Autor> lista = dao.listarAutores();
+
+        for (Autor autor : lista) {
+            Object[] fila = {
+                autor.getCedula(),
+                autor.getNombre(),
+                autor.getApellido(),
+                autor.getNacionalidad(),
+                autor.getTelefono()
+            };
+            modeloAutor.addRow(fila);
+        }
+    }
+
+    public void buscarAutor() {
+
+        modeloAutor.setRowCount(0);
+
+        String cedula = jtxtBuscarCedula.getText().trim();
+
+        AutorDAO dao = new AutorDAO();
+
+        ArrayList<Autor> lista = dao.buscarAutorPorCedula(cedula);
+
+        for (Autor autor : lista) {
+
+            Object[] fila = {
+                autor.getCedula(),
+                autor.getNombre(),
+                autor.getApellido(),
+                autor.getNacionalidad(),
+                autor.getTelefono()
+            };
+
+            modeloAutor.addRow(fila);
+        }
+    }
+
+    public void guardarAutor() {
+        Autor autor = new Autor(jtxtCedula.getText(), jtxtNombre.getText(), jtxtApellido.getText(), jtxtNacionalidad.getText(), jtxtTelefono.getText());
+
+        AutorDAO dao = new AutorDAO();
+
+        if (dao.guardarAutor(autor)) {
+            JOptionPane.showMessageDialog(this, "Autor guardado correctamente");
+            listarAutores();
+            limpiarCampos();
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al guardar autor");
+        }
+
+    }
+
+    public void editarAutor() {
+        Autor autor = new Autor(jtxtCedula.getText(), jtxtNombre.getText(), jtxtApellido.getText(), jtxtNacionalidad.getText(), jtxtTelefono.getText());
+
+        AutorDAO dao = new AutorDAO();
+
+        if (dao.editarAutor(autor)) {
+            JOptionPane.showMessageDialog(this, "Autor editado correctamente");
+            listarAutores();
+            limpiarCampos();
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al editar Autor");
+        }
+    }
+
+    public void limpiarCampos() {
+        jtxtCedula.setText("");
+        jtxtNombre.setText("");
+        jtxtApellido.setText("");
+        jtxtNacionalidad.setText("");
+        jtxtTelefono.setText("");
+        jtxtCedula.setEnabled(true);
+    }
+
+    public void eliminarAutor() {
+        String cedula = jtxtCedula.getText();
+
+        Autor autor = new Autor();
+
+        autor.setCedula(cedula);
+
+        AutorDAO dao = new AutorDAO();
+
+        if (dao.eliminarAutor(autor)) {
+            JOptionPane.showMessageDialog(this, "Autor eliminado correctamente");
+            listarAutores();
+            limpiarCampos();
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al eliminar estudiante");
+        }
+
+    }
+
+    public void SeleccionarFilaEstudiante() {
+        jtblAutor.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (jtblAutor.getSelectedRow() != -1) {
+                    int fila = jtblAutor.getSelectedRow();
+                    jtxtCedula.setText(jtblAutor.getValueAt(fila, 0).toString());
+                    jtxtNombre.setText(jtblAutor.getValueAt(fila, 1).toString());
+                    jtxtApellido.setText(jtblAutor.getValueAt(fila, 2).toString());
+                    jtxtNacionalidad.setText(jtblAutor.getValueAt(fila, 3).toString());
+                    jtxtTelefono.setText(jtblAutor.getValueAt(fila, 4).toString());
+
+                    jtxtCedula.setEnabled(false);
+                }
+            }
+        });
+    }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+VISTA LibroCRUD
+
+    /**
+     * Creates new form libroCRUD
+     */
+    DefaultTableModel modeloLibro;
+
+    public LibroCRUD() {
+        initComponents();
+
+        cargarColumnasTabla();
+        listarLibros();
+        //cargarAutoresCombo();
+        SeleccionarFilaLibro();
+        cargarAutoresComboBusqueda();
+        cargarAutoresLista();
+    }
+
+    public void cargarColumnasTabla() {
+        String[] columnas = {"Codigo", "Titulo", "Autor"};
+        modeloLibro = new DefaultTableModel(null, columnas);
+        jtblLibro.setModel(modeloLibro);
+    }
+
+    public void listarLibros() {
+
+        modeloLibro.setRowCount(0);
+
+        LibroDAO dao = new LibroDAO();
+
+        ArrayList<Libro> lista = dao.listarLibrosConAutor();
+
+        for (Libro libro : lista) {
+
+            Object[] fila = {
+                libro.getCodigo(),
+                libro.getTitulo(),
+                libro.getNombreAutor()
+            };
+
+            modeloLibro.addRow(fila);
+        }
+    }
+
+    public void buscarLibrosPorAutorCombo() {
+
+        Object seleccionado = jcmbBusquedaCombo.getSelectedItem();
+
+        if (seleccionado == null) {
+            listarLibros();
+            return;
+        }
+
+        modeloLibro.setRowCount(0);
+
+        String datoCombo = seleccionado.toString();
+
+        String cedulaAutor = datoCombo.split(" - ")[0];
+
+        LibroDAO dao = new LibroDAO();
+
+        ArrayList<Libro> lista = dao.buscarLibrosPorAutor(cedulaAutor);
+
+        for (Libro libro : lista) {
+
+            Object[] fila = {
+                libro.getCodigo(),
+                libro.getTitulo(),
+                libro.getNombreAutor()
+            };
+
+            modeloLibro.addRow(fila);
+        }
+    }
+
+    public void guardarLibro() {
+
+        String codigo = jtxtCodigoLibro.getText().trim();
+        String titulo = jtxtTituloLibro.getText().trim();
+
+        String dato = jlstAutores.getSelectedValue();
+        String cedulaAutor = dato.split(" - ")[0];
+
+        Libro libro = new Libro(codigo, titulo, cedulaAutor, "");
+
+        LibroDAO dao = new LibroDAO();
+
+        if (dao.guardarLibro(libro)) {
+            JOptionPane.showMessageDialog(this, "Libro guardado correctamente");
+            listarLibros();
+            limpiarCampos();
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al guardar libro");
+        }
+    }
+
+    public void editarLibro() {
+
+        String codigo = jtxtCodigoLibro.getText().trim();
+        String titulo = jtxtTituloLibro.getText().trim();
+
+        String dato = jlstAutores.getSelectedValue();
+        String cedulaAutor = dato.split(" - ")[0];
+
+        //String datoCombo = jcmbAutor.getSelectedItem().toString();
+        //String cedulaAutor = datoCombo.split(" - ")[0];
+        Libro libro = new Libro(codigo, titulo, cedulaAutor, "");
+
+        LibroDAO dao = new LibroDAO();
+
+        if (dao.editarLibro(libro)) {
+            JOptionPane.showMessageDialog(this, "Libro editado correctamente");
+            listarLibros();
+            limpiarCampos();
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al editar libro");
+        }
+    }
+
+    public void eliminarLibro() {
+
+        int opcion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Desea eliminar el libro?",
+                "Confirmar",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (opcion == JOptionPane.YES_OPTION) {
+
+            String codigo = jtxtCodigoLibro.getText().trim();
+
+            LibroDAO dao = new LibroDAO();
+
+            if (dao.eliminarLibro(codigo)) {
+
+                JOptionPane.showMessageDialog(this, "Libro eliminado correctamente");
+
+                listarLibros();
+
+                limpiarCampos();
+
+            } else {
+
+                JOptionPane.showMessageDialog(this, "Error al eliminar libro");
+            }
+        }
+    }
+
+    public void cargarAutoresCombo() {
+
+        jcmbAutor.removeAllItems();
+
+        AutorDAO dao = new AutorDAO();
+
+        ArrayList<Autor> lista = dao.listarAutores();
+
+        for (Autor autor : lista) {
+
+            jcmbAutor.addItem(
+                    autor.getCedula() + " - " + autor.getNombre()
+            );
+        }
+    }
+
+    public void cargarAutoresLista() {
+
+        DefaultListModel<String> modelo = new DefaultListModel<>();
+
+        AutorDAO dao = new AutorDAO();
+
+        ArrayList<Autor> lista = dao.listarAutores();
+
+        for (Autor autor : lista) {
+
+            modelo.addElement(
+                    autor.getCedula() + " - " + autor.getNombre()
+            );
+        }
+
+        jlstAutores.setModel(modelo);
+    }
+
+    public void cargarAutoresComboBusqueda() {
+
+        jcmbBusquedaCombo.removeAllItems();
+
+        AutorDAO dao = new AutorDAO();
+
+        ArrayList<Autor> lista = dao.listarAutores();
+
+        for (Autor autor : lista) {
+
+            jcmbBusquedaCombo.addItem(
+                    autor.getCedula() + " - " + autor.getNombre()
+            );
+        }
+        jcmbBusquedaCombo.setSelectedIndex(-1);
+    }
+
+    public void limpiarCampos() {
+
+        jtxtCodigoLibro.setText("");
+        jtxtTituloLibro.setText("");
+
+        if (jcmbAutor.getItemCount() > 0) {
+            jcmbAutor.setSelectedIndex(0);
+        }
+
+        jtxtCodigoLibro.setEnabled(true);
+
+        jtblLibro.clearSelection();
+    }
+
+    public void SeleccionarFilaLibro() {
+        jtblLibro.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (jtblLibro.getSelectedRow() != -1) {
+                    int fila = jtblLibro.getSelectedRow();
+                    jtxtCodigoLibro.setText(jtblLibro.getValueAt(fila, 0).toString());
+                    jtxtTituloLibro.setText(jtblLibro.getValueAt(fila, 1).toString());
+
+                    /*String nombreAutorTabla = jtblLibro.getValueAt(fila, 2).toString();
+
+                    for (int i = 0; i < jcmbAutor.getItemCount(); i++) {
+
+                        String item = jcmbAutor.getItemAt(i);
+
+                        if (item.contains(nombreAutorTabla)) {
+                            jcmbAutor.setSelectedIndex(i);
+                            break;
+                        }
+                    }*/
+                    String nombreAutorTabla = jtblLibro.getValueAt(fila, 2).toString();
+
+                    ListModel<String> modelo = jlstAutores.getModel();
+
+                    for (int i = 0; i < modelo.getSize(); i++) {
+
+                        String item = modelo.getElementAt(i);
+
+                        if (item.contains(nombreAutorTabla)) {
+
+                            jlstAutores.setSelectedIndex(i);
+
+                            break;
+                        }
+                    }
+
+                    jtxtCodigoLibro.setEnabled(false);
+                }
+            }
+        });
+    }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Consumir Reporte
+
+        try {
+            // TODO add your handling code here:
+            Connection cc = Conexion.conectar();
+            Map parametros = new HashMap();
+            parametros.put("cedula", jtxtCedula.getText());
+            JasperReport reporteEstudiantes = JasperCompileManager.compileReport("C:\\Users\\Lenovo LOQ\\Documents\\NetBeansProjects\\SistemaBiblioteca\\src\\main\\java\\reportes\\autorMaestro.jrxml");
+            JasperPrint imprimirReporte = JasperFillManager.fillReport(reporteEstudiantes, parametros, cc);
+            JasperViewer.viewReport(imprimirReporte, false);
+            JasperExportManager.exportReportToPdfFile(imprimirReporte, "C:\\Users\\Lenovo LOQ\\Documents\\NetBeansProjects\\SistemaBiblioteca\\src\\main\\java\\reportes\\autorMaestro.pdf");
+        } catch (JRException ex) {
+            JOptionPane.showMessageDialog(null, ex);
+        }
