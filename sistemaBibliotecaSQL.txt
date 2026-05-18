@@ -53,3 +53,16 @@ Adaptador en Run
 --add-opens java.base/java.util=ALL-UNNAMED
 --add-opens java.desktop/java.awt=ALL-UNNAMED
 
+
+Conexión 
+    public static Connection conectar() {
+        Connection cn = null;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            cn = DriverManager.getConnection("jdbc:mysql://localhost/biblioteca", "root", "");
+            System.out.println((cn == null) ? "no valio" : "valio");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        }
+        return cn;
+    }
