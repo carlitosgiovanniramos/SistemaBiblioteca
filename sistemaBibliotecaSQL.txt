@@ -45,3 +45,11 @@ AND autor.autCedula = $P{cedula}
             <type>pom</type>
         </dependency>
     </dependencies>
+
+
+Adaptador en Run
+
+--add-opens java.base/java.lang=ALL-UNNAMED
+--add-opens java.base/java.util=ALL-UNNAMED
+--add-opens java.desktop/java.awt=ALL-UNNAMED
+

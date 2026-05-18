@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -42,9 +44,10 @@ public class LibroCRUD extends javax.swing.JFrame {
 
         cargarColumnasTabla();
         listarLibros();
-        cargarAutoresCombo();
+        //cargarAutoresCombo();
         SeleccionarFilaLibro();
         cargarAutoresComboBusqueda();
+        cargarAutoresLista();
     }
 
     public void cargarColumnasTabla() {
@@ -109,8 +112,8 @@ public class LibroCRUD extends javax.swing.JFrame {
         String codigo = jtxtCodigoLibro.getText().trim();
         String titulo = jtxtTituloLibro.getText().trim();
 
-        String datoCombo = jcmbAutor.getSelectedItem().toString();
-        String cedulaAutor = datoCombo.split(" - ")[0];
+        String dato = jlstAutores.getSelectedValue();
+        String cedulaAutor = dato.split(" - ")[0];
 
         Libro libro = new Libro(codigo, titulo, cedulaAutor, "");
 
@@ -130,9 +133,11 @@ public class LibroCRUD extends javax.swing.JFrame {
         String codigo = jtxtCodigoLibro.getText().trim();
         String titulo = jtxtTituloLibro.getText().trim();
 
-        String datoCombo = jcmbAutor.getSelectedItem().toString();
-        String cedulaAutor = datoCombo.split(" - ")[0];
+        String dato = jlstAutores.getSelectedValue();
+        String cedulaAutor = dato.split(" - ")[0];
 
+        //String datoCombo = jcmbAutor.getSelectedItem().toString();
+        //String cedulaAutor = datoCombo.split(" - ")[0];
         Libro libro = new Libro(codigo, titulo, cedulaAutor, "");
 
         LibroDAO dao = new LibroDAO();
@@ -192,6 +197,24 @@ public class LibroCRUD extends javax.swing.JFrame {
         }
     }
 
+    public void cargarAutoresLista() {
+
+        DefaultListModel<String> modelo = new DefaultListModel<>();
+
+        AutorDAO dao = new AutorDAO();
+
+        ArrayList<Autor> lista = dao.listarAutores();
+
+        for (Autor autor : lista) {
+
+            modelo.addElement(
+                    autor.getCedula() + " - " + autor.getNombre()
+            );
+        }
+
+        jlstAutores.setModel(modelo);
+    }
+
     public void cargarAutoresComboBusqueda() {
 
         jcmbBusquedaCombo.removeAllItems();
@@ -230,7 +253,9 @@ public class LibroCRUD extends javax.swing.JFrame {
                 if (jtblLibro.getSelectedRow() != -1) {
                     int fila = jtblLibro.getSelectedRow();
                     jtxtCodigoLibro.setText(jtblLibro.getValueAt(fila, 0).toString());
-                    String nombreAutorTabla = jtblLibro.getValueAt(fila, 2).toString();
+                    jtxtTituloLibro.setText(jtblLibro.getValueAt(fila, 1).toString());
+
+                    /*String nombreAutorTabla = jtblLibro.getValueAt(fila, 2).toString();
 
                     for (int i = 0; i < jcmbAutor.getItemCount(); i++) {
 
@@ -240,8 +265,23 @@ public class LibroCRUD extends javax.swing.JFrame {
                             jcmbAutor.setSelectedIndex(i);
                             break;
                         }
+                    }*/
+                    String nombreAutorTabla = jtblLibro.getValueAt(fila, 2).toString();
+
+                    ListModel<String> modelo = jlstAutores.getModel();
+
+                    for (int i = 0; i < modelo.getSize(); i++) {
+
+                        String item = modelo.getElementAt(i);
+
+                        if (item.contains(nombreAutorTabla)) {
+
+                            jlstAutores.setSelectedIndex(i);
+
+                            break;
+                        }
                     }
-                    jtxtTituloLibro.setText(jtblLibro.getValueAt(fila, 1).toString());
+
                     jtxtCodigoLibro.setEnabled(false);
                 }
             }
@@ -272,6 +312,8 @@ public class LibroCRUD extends javax.swing.JFrame {
         jbtnCancelar = new javax.swing.JButton();
         jcmbAutor = new javax.swing.JComboBox<>();
         jcmbBusquedaCombo = new javax.swing.JComboBox<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jlstAutores = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -357,6 +399,13 @@ public class LibroCRUD extends javax.swing.JFrame {
             }
         });
 
+        jlstAutores.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane2.setViewportView(jlstAutores);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -371,11 +420,12 @@ public class LibroCRUD extends javax.swing.JFrame {
                         .addComponent(jtxtCodigoLibro, javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jcmbBusquedaCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jcmbAutor, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jcmbBusquedaCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jbtnNuevo)
                     .addComponent(jbtnGuardar)
@@ -417,8 +467,10 @@ public class LibroCRUD extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jcmbAutor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(45, Short.MAX_VALUE))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(12, 12, 12)
+                .addComponent(jcmbAutor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(63, Short.MAX_VALUE))
         );
 
         pack();
@@ -434,6 +486,7 @@ public class LibroCRUD extends javax.swing.JFrame {
 
     private void jbtnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnNuevoActionPerformed
         // TODO add your handling code here:
+        limpiarCampos();
     }//GEN-LAST:event_jbtnNuevoActionPerformed
 
     private void jbtnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnGuardarActionPerformed
@@ -448,6 +501,7 @@ public class LibroCRUD extends javax.swing.JFrame {
 
     private void jbtnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnEliminarActionPerformed
         // TODO add your handling code here:
+        eliminarLibro();
 
     }//GEN-LAST:event_jbtnEliminarActionPerformed
 
@@ -464,7 +518,7 @@ public class LibroCRUD extends javax.swing.JFrame {
 
     private void jcmbBusquedaComboMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jcmbBusquedaComboMouseClicked
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_jcmbBusquedaComboMouseClicked
 
     /**
@@ -509,6 +563,7 @@ public class LibroCRUD extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton jbtnCancelar;
     private javax.swing.JButton jbtnEditar;
     private javax.swing.JButton jbtnEliminar;
@@ -516,6 +571,7 @@ public class LibroCRUD extends javax.swing.JFrame {
     private javax.swing.JButton jbtnNuevo;
     private javax.swing.JComboBox<String> jcmbAutor;
     private javax.swing.JComboBox<String> jcmbBusquedaCombo;
+    private javax.swing.JList<String> jlstAutores;
     private javax.swing.JTable jtblLibro;
     private javax.swing.JTextField jtxtCodigoLibro;
     private javax.swing.JTextField jtxtTituloLibro;
